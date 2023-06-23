@@ -28,6 +28,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers("/img/**").permitAll()
                 .antMatchers("/js/**").permitAll()
                 .antMatchers("/plugins/**").permitAll()
+                .antMatchers("/senha/**").permitAll()
                 .antMatchers("/**/cadastrar").hasAuthority(Perfil.ADMIN.toString())
                 .antMatchers("/**/editar").hasAuthority(Perfil.ADMIN.toString())
                 .antMatchers("/**/excluir").hasAuthority(Perfil.ADMIN.toString())
@@ -40,6 +41,10 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
         http.logout()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout", "GET"))
                 .logoutSuccessUrl("/login");
+
+        http.rememberMe()
+                .tokenValiditySeconds(259200)
+                .key("chaveRemenberMe");
     }
 
     @Override

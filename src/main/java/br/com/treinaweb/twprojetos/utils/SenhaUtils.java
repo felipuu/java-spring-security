@@ -7,4 +7,8 @@ public class SenhaUtils {
         return new BCryptPasswordEncoder().encode(senha);
     }
 
+    public static boolean matchs(String senha, String hash){
+        return new BCryptPasswordEncoder().matches(senha, hash);
+    }
+
 }
