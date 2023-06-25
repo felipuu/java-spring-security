@@ -1,19 +1,19 @@
 package br.com.treinaweb.twprojetos.controles;
 
-import br.com.treinaweb.twprojetos.utils.SenhaUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.servlet.ModelAndView;
-
 import br.com.treinaweb.twprojetos.entidades.Funcionario;
-import br.com.treinaweb.twprojetos.enums.UF;
 import br.com.treinaweb.twprojetos.repositorios.CargoRepositorio;
 import br.com.treinaweb.twprojetos.repositorios.FuncionarioRepositorio;
+import br.com.treinaweb.twprojetos.utils.SenhaUtils;
+import br.com.treinaweb.twprojetos.validadores.FuncionarioValidador;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.ModelMap;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
+import javax.validation.Valid;
 
 @Controller
 @RequestMapping("/funcionarios")
@@ -24,6 +24,11 @@ public class FuncionarioControle {
 
     @Autowired
     private CargoRepositorio cargoRepositorio;
+
+    @InitBinder
+    public void initBinder(WebDataBinder binder){
+        binder.addValidators(new FuncionarioValidador(funcionarioRepositorio));
+    }
 
     @GetMapping
     public ModelAndView home() {
@@ -49,7 +54,6 @@ public class FuncionarioControle {
 
         modelAndView.addObject("funcionario", new Funcionario());
         modelAndView.addObject("cargos", cargoRepositorio.findAll());
-        modelAndView.addObject("ufs", UF.values());
 
         return modelAndView;
     }
@@ -60,13 +64,18 @@ public class FuncionarioControle {
 
         modelAndView.addObject("funcionario", funcionarioRepositorio.getOne(id));
         modelAndView.addObject("cargos", cargoRepositorio.findAll());
-        modelAndView.addObject("ufs", UF.values());
 
         return modelAndView;
     }
 
     @PostMapping("/cadastrar")
-    public String cadastrar(Funcionario funcionario) {
+    public String cadastrar(@Valid Funcionario funcionario, BindingResult resultado, ModelMap model) {
+
+        if (resultado.hasErrors()) {
+            model.addAttribute("cargos", cargoRepositorio.findAll());
+            return "funcionario/formulario";
+        }
+
         funcionario.setSenha(SenhaUtils.encode(funcionario.getSenha()));
         funcionarioRepositorio.save(funcionario);
 
@@ -74,7 +83,12 @@ public class FuncionarioControle {
     }
 
     @PostMapping("/{id}/editar")
-    public String editar(Funcionario funcionario){
+    public String editar(@Valid Funcionario funcionario, BindingResult result, ModelMap model){
+        if (result.hasErrors()){
+            model.addAttribute("cargos", cargoRepositorio.findAll());
+            return "funcionario/formulario";
+        }
+
         funcionario.setSenha(SenhaUtils.encode(funcionarioRepositorio.getOne(funcionario.getId()).getSenha()));
         funcionarioRepositorio.save(funcionario);
 

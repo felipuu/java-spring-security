@@ -1,14 +1,14 @@
 package br.com.treinaweb.twprojetos.repositorios;
 
-import java.util.List;
-import java.util.Optional;
-
+import br.com.treinaweb.twprojetos.entidades.Cargo;
+import br.com.treinaweb.twprojetos.entidades.Funcionario;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-
-import br.com.treinaweb.twprojetos.entidades.Funcionario;
 import org.springframework.stereotype.Repository;
+
+import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FuncionarioRepositorio extends JpaRepository<Funcionario, Long> {
@@ -27,4 +27,6 @@ public interface FuncionarioRepositorio extends JpaRepository<Funcionario, Long>
     List<Funcionario> findByCargoNomeNot(String cargoNome);
 
     Optional<Funcionario> findByEmail(String email);
+    Optional<Funcionario> findByCpf(String cpf);
+    List<Funcionario> findByCargo(Cargo cargo);
 }
